@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/vMyLoc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="@dimen/big_size">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/default_size">
+            <CheckBox
+                android:layout_gravity="center_vertical"
+                android:checked="true"
+                android:id="@+id/checkMyLoc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gunakan lokasi saya" />
+            <ImageView
+                android:id="@+id/refreshLoc"
+                android:src="@drawable/ic_refresh_black_24dp"
+                android:layout_marginLeft="@dimen/default_size"
+                android:layout_gravity="center_vertical"
+                android:layout_width="18dp"
+                android:layout_height="18dp" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+    <Button
+        android:id="@+id/bSegar"
+        android:text="Segarkan RTH"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/big_size"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

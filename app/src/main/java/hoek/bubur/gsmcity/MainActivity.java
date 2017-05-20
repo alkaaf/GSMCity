@@ -1,10 +1,11 @@
 package hoek.bubur.gsmcity;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,35 +13,76 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.IOException;
+
+import hoek.bubur.gsmcity.Interface.OnLocationLock;
+import hoek.bubur.gsmcity.Menu.GeoTagging.Fragment.FragmentGeoTagMap;
+import hoek.bubur.gsmcity.Menu.OfficialCari.Fragment.FragmentOfficialMapRadius;
+import hoek.bubur.gsmcity.Menu.OfficialKategori.Fragment.FragmentDaftarKategori;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-    SupportMapFragment map;
-    GoogleMap gmap;
+    FragmentManager fm;
+    View navHeader;
+    Geocoder geocoder;
+
+    OnLocationLock onLocationLock = new OnLocationLock() {
+        long tickupdate = 0;
+
+        @Override
+        public void onLock(final LatLng latLng) {
+            final TextView tvStatus = (TextView) navHeader.findViewById(R.id.tvStatus);
+            TextView tvLat = (TextView) navHeader.findViewById(R.id.tvLat);
+            TextView tvLng = (TextView) navHeader.findViewById(R.id.tvLng);
+
+            tvLat.setText(latLng.latitude + "");
+            tvLng.setText(latLng.longitude + "");
+
+            // buat update lokasinya
+            if (System.currentTimeMillis() - tickupdate > 1000 * 60) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            final Address addr = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1).get(0);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvStatus.setText(
+                                            addr.getCountryName() + "\n" +
+                                                    addr.getAdminArea() + "\n" +
+                                                    addr.getSubAdminArea() + "\n" +
+                                                    addr.getLocality() + "\n" +
+                                                    addr.getSubLocality() + "\n" +
+                                                    addr.getThoroughfare() + "\n"
+                                    );
+                                }
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                tickupdate = System.currentTimeMillis();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        geocoder = new Geocoder(this);
 
-        map = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map));
-        map.getMapAsync(this);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fm = getSupportFragmentManager();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -50,6 +92,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navHeader = navigationView.getHeaderView(0);
+        BaseApp.setOnLockListener(onLocationLock);
     }
 
     @Override
@@ -88,29 +132,30 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        FragmentTransaction ft = fm.beginTransaction();
+        BaseFragment fragment = null;
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_geotag) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+            fragment = new FragmentGeoTagMap();
+        } else if (id == R.id.nav_official_kategori) {
+            fragment = new FragmentDaftarKategori();
+        } else if (id == R.id.nav_official_pencarian) {
+            fragment = new FragmentOfficialMapRadius();
+        } else if (id == R.id.nav_ide) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_statistik) {
 
         }
 
+        if (fragment != null) {
+            ft.replace(R.id.fContainer, fragment);
+            ft.commit();
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        gmap = googleMap;
-    }
 }
