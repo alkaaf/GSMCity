@@ -1,10 +1,12 @@
 package hoek.bubur.gsmcity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -25,9 +27,11 @@ import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.util.List;
 
 import hoek.bubur.gsmcity.Interface.OnLocationLock;
 import hoek.bubur.gsmcity.Menu.GeoTagging.Fragment.FragmentGeoTagMap;
+import hoek.bubur.gsmcity.Menu.Ide.Fragment.FragmentIde;
 import hoek.bubur.gsmcity.Menu.OfficialCari.Fragment.FragmentOfficialMapRadius;
 import hoek.bubur.gsmcity.Menu.OfficialKategori.Fragment.FragmentDaftarKategori;
 
@@ -150,7 +154,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_official_pencarian) {
             fragment = new FragmentOfficialMapRadius();
         } else if (id == R.id.nav_ide) {
-
+            fragment = new FragmentIde();
         } else if (id == R.id.nav_statistik) {
 
         } else if (id == R.id.nav_changews) {
@@ -200,5 +204,16 @@ public class MainActivity extends AppCompatActivity
                 })
                 .create();
         alertDialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                fragment.onActivityResult(requestCode, resultCode, data);
+            }
+        }
     }
 }

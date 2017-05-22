@@ -206,6 +206,7 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                cari = newText;
                 return false;
             }
         });
@@ -247,8 +248,10 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
                                     gmap.clear();
 
                                     // put marker to list and map
-                                    for (int i = 0; i < dataRTH.size(); i++) {
-                                        markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(dataRTH.get(i).getNamaLokasi())));
+                                    if(dataRTH != null) {
+                                        for (int i = 0; i < dataRTH.size(); i++) {
+                                            markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(dataRTH.get(i).getNamaLokasi())));
+                                        }
                                     }
 
                                     markAndPan(new LatLng(FragmentOfficialMapRadius.this.lat, FragmentOfficialMapRadius.this.lng));
