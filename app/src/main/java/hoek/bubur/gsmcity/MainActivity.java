@@ -1,5 +1,6 @@
 package hoek.bubur.gsmcity;
 
+import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -9,12 +10,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -147,6 +153,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_statistik) {
 
+        } else if (id == R.id.nav_changews) {
+            changeWs();
         }
 
         if (fragment != null) {
@@ -158,4 +166,39 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    EditText iEditWs;
+    Conf conf;
+    AlertDialog alertDialog;
+
+    private void changeWs() {
+        iEditWs = new EditText(this);
+        iEditWs.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        conf = new Conf(this);
+        String sWs = conf.getConf(Conf.CONF_WSADDR);
+        if (sWs != null) {
+            iEditWs.setText(sWs);
+        }
+        alertDialog = new AlertDialog.Builder(this)
+                .setView(iEditWs)
+                .setTitle("Alamat webservice")
+                .setPositiveButton("Simpan", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (iEditWs.getText().toString().isEmpty()) {
+                            Toast.makeText(MainActivity.this, "Alamat tidak boleh kosong", Toast.LENGTH_SHORT).show();
+                        } else {
+                            conf.putConf(Conf.CONF_WSADDR, iEditWs.getText().toString().trim());
+                            alertDialog.dismiss();
+                        }
+                    }
+                })
+                .setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        alertDialog.dismiss();
+                    }
+                })
+                .create();
+        alertDialog.show();
+    }
 }

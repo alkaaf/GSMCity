@@ -1,5 +1,8 @@
 package hoek.bubur.gsmcity.WebService;
 
+import android.content.Context;
+
+import hoek.bubur.gsmcity.Conf;
 import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -10,17 +13,22 @@ import okhttp3.Request;
  */
 
 public class API {
-
-    public static final String WSADDR = "";
-    public static final String GEOTAG_CTL = "";
+    public String WSADDR = "http://www.google.com/";
     public static final String GEOTAG_GET_LIST_GEOTAG = "";
-    public static final String KATEGORI_CTL = "";
-    public static final String KATEGORI_LIST_RTH = "";
-    public static final String KATEGORI_LIST_RTH_RADIUS = "";
+    public static final String KATEGORI_LIST_RTH_KATEGORI = "/getOfficialRTHKategori";
+    public static final String KATEGORI_LIST_RTH_RADIUS = "/getOfficialRTHRadius";
+
+    Context context;
+    Conf conf;
+    public API(Context context) {
+        this.context = context;
+        conf = new Conf(context);
+        WSADDR = conf.getConf(Conf.CONF_WSADDR);
+    }
 
     public void getGeoTagList(double lat, double lng, Callback callback) {
         call(new Request.Builder()
-                        .url(WSADDR + GEOTAG_CTL + GEOTAG_GET_LIST_GEOTAG)
+                        .url(WSADDR + GEOTAG_GET_LIST_GEOTAG)
                         .post(new MultipartBody.Builder()
                                 .setType(MultipartBody.FORM)
                                 .addFormDataPart("lat", Double.toString(lat))
@@ -31,26 +39,26 @@ public class API {
                 , callback);
     }
 
-    public void getRTHOfficial(int kategori, Callback callback) {
+    public void getRTHOfficial(int idKategori, Callback callback) {
         call(new Request.Builder()
-                        .url(WSADDR + KATEGORI_CTL + KATEGORI_LIST_RTH)
+                        .url(WSADDR + KATEGORI_LIST_RTH_KATEGORI)
                         .post(new MultipartBody.Builder()
                                 .setType(MultipartBody.FORM)
-                                .addFormDataPart("id", Integer.toString(kategori))
+                                .addFormDataPart("id_kategori", Integer.toString(idKategori))
                                 .build()
                         )
                         .build()
                 , callback);
     }
 
-    public void getRadiusRTHOfficial(double lat, double lng, String alamat, String nama, double jarak, Callback callback){
+    public void getRadiusRTHOfficial(double lat, double lng, String alamat, String nama, double jarak, Callback callback) {
         call(new Request.Builder()
-                        .url(WSADDR + KATEGORI_CTL + KATEGORI_LIST_RTH)
+                        .url(WSADDR + KATEGORI_LIST_RTH_RADIUS)
                         .post(new MultipartBody.Builder()
                                 .setType(MultipartBody.FORM)
                                 .addFormDataPart("lat", Double.toString(lat))
                                 .addFormDataPart("lng", Double.toString(lng))
-                                .addFormDataPart("alamat",alamat)
+                                .addFormDataPart("alamat", alamat)
                                 .addFormDataPart("nama", nama)
                                 .addFormDataPart("jarak", Double.toString(jarak))
                                 .build()

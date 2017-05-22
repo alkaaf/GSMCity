@@ -46,7 +46,6 @@ public class ActivityOfficialRTHMap extends BaseActivity implements OnMapReadyCa
         if (rth == null) {
             finish();
         }
-        infoWindow = new RTHInfoWindow(this, rth);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -57,8 +56,7 @@ public class ActivityOfficialRTHMap extends BaseActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gmap = googleMap;
-        gmap.addMarker(new MarkerOptions().position(rth.getLatLng()).title(rth.getNamaLokasi()));
-        gmap.setInfoWindowAdapter(infoWindow);
+        gmap.addMarker(new MarkerOptions().position(rth.getLatLng()).title(rth.getAlamat()).snippet(rth.getNamaLokasi()));
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions

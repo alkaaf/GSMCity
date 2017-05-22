@@ -7,6 +7,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -16,6 +25,10 @@ import hoek.bubur.gsmcity.Menu.OfficialKategori.Adapter.AdapterDaftarOfficialRTH
 import hoek.bubur.gsmcity.Model.KategoriRTH;
 import hoek.bubur.gsmcity.Model.RTH;
 import hoek.bubur.gsmcity.R;
+import hoek.bubur.gsmcity.WebService.API;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
  * Created by dalbo on 5/20/2017.
@@ -30,14 +43,7 @@ public class ActivityDaftarOfficialRTH extends BaseActivity {
 
     AdapterDaftarOfficialRTH adapter;
     KategoriRTH kat;
-    OnItemClickListener<RTH> rthListener = new OnItemClickListener<RTH>() {
-        @Override
-        public void onItemClick(View v, int pos, RTH data) {
-            Intent intent = new Intent(ActivityDaftarOfficialRTH.this, ActivityOfficialRTHMap.class);
-            intent.putExtra(ActivityOfficialRTHMap.INTENT_DATA,data);
-            startActivity(intent);
-        }
-    };
+    List<RTH> data = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +60,7 @@ public class ActivityDaftarOfficialRTH extends BaseActivity {
             @Override
             public void onItemClick(View v, int pos, RTH data) {
                 Intent intent = new Intent(ActivityDaftarOfficialRTH.this, ActivityOfficialRTHMap.class);
-                intent.putExtra(ActivityOfficialRTHMap.INTENT_DATA,data);
+                intent.putExtra(ActivityOfficialRTHMap.INTENT_DATA, data);
                 startActivity(intent);
             }
         });
@@ -70,9 +76,53 @@ public class ActivityDaftarOfficialRTH extends BaseActivity {
     }
 
     private void initData() {
+        API api = new API(this);
         swipe.setRefreshing(true);
-        adapter.replaceData(RTH.getSample());
-        adapter.notifyDataSetChanged();
-        swipe.setRefreshing(false);
+        api.getRTHOfficial(kat.getId(), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                if (isActive()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            swipe.setRefreshing(false);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (isActive()) {
+                    if (response.isSuccessful()) {
+                        data = new Gson().fromJson(response.body().string(), new TypeToken<List<RTH>>() {
+                        }.getType());
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+
+                                    adapter.replaceData(data);
+                                    adapter.notifyDataSetChanged();
+                                } catch (JsonSyntaxException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(ActivityDaftarOfficialRTH.this, "Gagal parsing data", Toast.LENGTH_SHORT).show();
+                                }
+                                swipe.setRefreshing(false);
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                swipe.setRefreshing(false);
+                                Toast.makeText(ActivityDaftarOfficialRTH.this, "Gagal menghubungi server", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 }

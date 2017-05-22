@@ -10,19 +10,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
@@ -59,16 +64,25 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
     View vMyLoc;
     @BindView(R.id.refreshLoc)
     ImageView refreshLoc;
+    @BindView(R.id.seekJarak)
+    SeekBar seekJarak;
+    @BindView(R.id.tvJarak)
+    TextView tvJarak;
+    @BindView(R.id.bSegar)
+    Button bSegar;
+
 
     double lat;
     double lng;
+    String cari = "";
+    int jarak = 1;
 
     LocationManager lm;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_map_geotag, container, false);
+        View v = inflater.inflate(R.layout.fragment_map_official_rth, container, false);
         ButterKnife.bind(this, v);
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -89,6 +103,31 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
                 if (b) {
                     fetchLocation();
                 }
+            }
+        });
+        seekJarak.setProgress(jarak);
+        tvJarak.setText(jarak + " KM");
+        seekJarak.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                jarak = i;
+                tvJarak.setText(jarak + " KM");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        bSegar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initData(lat, lng, jarak, cari, cari);
             }
         });
         return v;
@@ -139,7 +178,7 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
         if (marker != null) {
             marker.remove();
         }
-        marker = gmap.addMarker(new MarkerOptions().position(latlng));
+        marker = gmap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         if (useMyLocation) {
             gmap.animateCamera(CameraUpdateFactory.newLatLng(latlng));
         }
@@ -153,12 +192,20 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
+                cari = query;
+                initData(lat, lng, jarak, cari, cari);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                cari = "";
                 return false;
             }
         });
@@ -168,7 +215,7 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
     List<Marker> markers;
 
     public void initData(double lat, double lng, double jarak, String alamat, String nama) {
-        API api = new API();
+        API api = new API(getContext());
         api.getRadiusRTHOfficial(lat, lng, alamat, nama, jarak, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -176,14 +223,39 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    dataRTH = new Gson().fromJson(response.body().string(), new TypeToken<List<RTH>>() {
-                    }.getType());
-                    markers = new ArrayList<Marker>();
-                    for (int i = 0; i < dataRTH.size(); i++) {
-                        markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng())));
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (isActive()) {
+                    if (response.isSuccessful()) {
+                        try {
+                            // parse data
+                            dataRTH = new Gson().fromJson(response.body().string(), new TypeToken<List<RTH>>() {
+                            }.getType());
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // save marker
+                                    markers = new ArrayList<Marker>();
+
+                                    // clear maps marker
+                                    gmap.clear();
+
+                                    // put marker to list and map
+                                    for (int i = 0; i < dataRTH.size(); i++) {
+                                        markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(dataRTH.get(i).getNamaLokasi())));
+                                    }
+
+                                    markAndPan(new LatLng(FragmentOfficialMapRadius.this.lat, FragmentOfficialMapRadius.this.lng));
+                                }
+                            });
+
+                        } catch (JsonSyntaxException e) {
+                            e.printStackTrace();
+                            // catch when cannot parse json response
+//                            Toast.makeText(getContext(), "Gagal parsing data", Toast.LENGTH_SHORT).show();
+                        }
+
                     }
+
                 }
             }
         });

@@ -55,7 +55,6 @@ public class BaseApp extends Application implements LocationListener {
     public void onLocationChanged(Location location) {
         lat = location.getLatitude();
         lng = location.getLongitude();
-        Log.i("LOC_AUTO",lat+" "+lng);
         latLng = new LatLng(lat, lng);
         listener.onLock(latLng);
     }

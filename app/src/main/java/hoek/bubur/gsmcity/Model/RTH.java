@@ -17,16 +17,32 @@ public class RTH implements Parcelable {
 
     @SerializedName("id")
     int id;
+    @SerializedName("id_kategori")
+    int idKategori;
     @SerializedName("nama")
     String namaLokasi;
     @SerializedName("alamat")
     String alamat;
+    @SerializedName("fasilitas")
     String fasilitas;
+    @SerializedName("url")
     String urlGambar;
+    @SerializedName("lat")
     double lat;
+    @SerializedName("lng")
     double lng;
+    @SerializedName("jarak")
     double jarak; // km
+    @SerializedName("luas")
     double luas; // km
+
+    public int getIdKategori() {
+        return idKategori;
+    }
+
+    public void setIdKategori(int idKategori) {
+        this.idKategori = idKategori;
+    }
 
     public RTH(int id, String namaLokasi, String fasilitas, double lat, double lng, double jarak, double luas) {
         this.id = id;
@@ -130,50 +146,8 @@ public class RTH implements Parcelable {
         this.luas = luas;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.id);
-        dest.writeString(this.namaLokasi);
-        dest.writeString(this.alamat);
-        dest.writeString(this.fasilitas);
-        dest.writeString(this.urlGambar);
-        dest.writeDouble(this.lat);
-        dest.writeDouble(this.lng);
-        dest.writeDouble(this.jarak);
-        dest.writeDouble(this.luas);
-    }
-
     public RTH() {
     }
-
-    protected RTH(Parcel in) {
-        this.id = in.readInt();
-        this.namaLokasi = in.readString();
-        this.alamat = in.readString();
-        this.fasilitas = in.readString();
-        this.urlGambar = in.readString();
-        this.lat = in.readDouble();
-        this.lng = in.readDouble();
-        this.jarak = in.readDouble();
-        this.luas = in.readDouble();
-    }
-
-    public static final Parcelable.Creator<RTH> CREATOR = new Parcelable.Creator<RTH>() {
-        @Override
-        public RTH createFromParcel(Parcel source) {
-            return new RTH(source);
-        }
-
-        @Override
-        public RTH[] newArray(int size) {
-            return new RTH[size];
-        }
-    };
 
     public static List<RTH> getSample() {
         List<RTH> l = new ArrayList<>();
@@ -190,4 +164,48 @@ public class RTH implements Parcelable {
         l.add(new RTH(1, "Sawetq", "Kamar mandid", 321, 10, 51));
         return l;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeInt(this.idKategori);
+        dest.writeString(this.namaLokasi);
+        dest.writeString(this.alamat);
+        dest.writeString(this.fasilitas);
+        dest.writeString(this.urlGambar);
+        dest.writeDouble(this.lat);
+        dest.writeDouble(this.lng);
+        dest.writeDouble(this.jarak);
+        dest.writeDouble(this.luas);
+    }
+
+    protected RTH(Parcel in) {
+        this.id = in.readInt();
+        this.idKategori = in.readInt();
+        this.namaLokasi = in.readString();
+        this.alamat = in.readString();
+        this.fasilitas = in.readString();
+        this.urlGambar = in.readString();
+        this.lat = in.readDouble();
+        this.lng = in.readDouble();
+        this.jarak = in.readDouble();
+        this.luas = in.readDouble();
+    }
+
+    public static final Creator<RTH> CREATOR = new Creator<RTH>() {
+        @Override
+        public RTH createFromParcel(Parcel source) {
+            return new RTH(source);
+        }
+
+        @Override
+        public RTH[] newArray(int size) {
+            return new RTH[size];
+        }
+    };
 }

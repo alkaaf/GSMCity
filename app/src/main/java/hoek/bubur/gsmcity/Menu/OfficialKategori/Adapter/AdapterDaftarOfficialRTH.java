@@ -25,7 +25,11 @@ public class AdapterDaftarOfficialRTH extends GlobalRecyclerAdapter<RTH, Adapter
 
     @Override
     public void onBindDataToHolder(Holder holder, int pos, RTH data) {
-        holder.tvNama.setText(data.getNamaLokasi());
+        if (data.getNamaLokasi() == null || data.getNamaLokasi().isEmpty()) {
+
+        } else {
+            holder.tvNama.setText(data.getNamaLokasi());
+        }
         holder.tvAlamat.setText(data.getAlamat());
     }
 

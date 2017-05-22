@@ -19,6 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -114,7 +115,7 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
             lng = BaseApp.getLng();
             initData(lat, lng);
             if (gmap != null) {
-                markAndPan(BaseApp.getLatLng());
+                markAndPan(BaseApp.getLatLng(), "Lokasi Saya");
             }
         } else {
             Toast.makeText(getContext(), "Lokasi anda belum ditemukan", Toast.LENGTH_SHORT).show();
@@ -136,7 +137,7 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
             public void onMapClick(LatLng latLng) {
                 if (!useMyLocation) {
                     Log.i("LOC_SELECTED", latLng.latitude + " " + latLng.longitude);
-                    markAndPan(new LatLng(latLng.latitude, latLng.longitude));
+                    markAndPan(new LatLng(latLng.latitude, latLng.longitude), "Lokasi Saya");
                     lat = latLng.latitude;
                     lng = latLng.longitude;
                     initData(lat, lng);
@@ -149,40 +150,22 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
 
     Marker marker;
 
-    private void markAndPan(LatLng latlng) {
+    private void markAndPan(LatLng latlng, String title) {
         if (marker != null) {
             marker.remove();
         }
-        marker = gmap.addMarker(new MarkerOptions().position(latlng));
+        marker = gmap.addMarker(new MarkerOptions().position(latlng).title(title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         if (useMyLocation) {
             gmap.animateCamera(CameraUpdateFactory.newLatLng(latlng));
         }
     }
-//
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-//        inflater.inflate(R.menu.menu_search, menu);
-//        searchView = (SearchView) menu.findItem(R.id.menuSearch).getActionView();
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                return false;
-//            }
-//        });
-//    }
+
 
     List<RTH> dataRTH;
     List<Marker> markers;
 
     public void initData(double lat, double lng) {
-        API api = new API();
+        API api = new API(getContext());
         api.getGeoTagList(lat, lng, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -190,27 +173,32 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    try {
-                        dataRTH = new Gson().fromJson(response.body().string(), new TypeToken<List<RTH>>() {
-                        }.getType());
-                        markers = new ArrayList<Marker>();
-                        for (int i = 0; i < dataRTH.size(); i++) {
-                            markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng())));
-                        }
-                    } catch (JsonSyntaxException e) {
-                        e.printStackTrace();
-                        if (isActive()) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+            public void onResponse(Call call, final Response response) {
+                if (isActive()) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (response.isSuccessful()) {
+                                try {
+                                    dataRTH = new Gson().fromJson(response.body().string(), new TypeToken<List<RTH>>() {
+                                    }.getType());
+                                    gmap.clear();
+                                    markers = new ArrayList<Marker>();
+                                    for (int i = 0; i < dataRTH.size(); i++) {
+                                        markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(dataRTH.get(i).getNamaLokasi())));
+                                    }
+                                    markAndPan(new LatLng(FragmentGeoTagMap.this.lat, FragmentGeoTagMap.this.lng), "Lokasi saya");
+                                } catch (JsonSyntaxException e) {
+                                    e.printStackTrace();
                                     Toast.makeText(getContext(), "Gagal parsing data", Toast.LENGTH_SHORT).show();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getContext(), "Gagal menghubungi server", Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                        }
 
-                    }
+                            }
+                        }
+                    });
                 }
             }
         });

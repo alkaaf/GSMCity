@@ -12,7 +12,7 @@ public class Conf {
     Context context;
     SharedPreferences sp;
 
-    public static final String CONF_WSADDR = "conf-wsaddr";
+    public static final String CONF_WSADDR = "confwsaddr";
 
     public Conf(Context context) {
         this.context = context;
@@ -26,6 +26,6 @@ public class Conf {
     }
 
     public String getConf(String key) {
-        return sp.getString(key, null);
+        return sp.getString(key, "");
     }
 }
