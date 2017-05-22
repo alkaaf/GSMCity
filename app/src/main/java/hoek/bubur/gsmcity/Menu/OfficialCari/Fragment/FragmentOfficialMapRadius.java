@@ -35,11 +35,9 @@ import hoek.bubur.gsmcity.BaseApp;
 import hoek.bubur.gsmcity.BaseFragment;
 import hoek.bubur.gsmcity.Model.RTH;
 import hoek.bubur.gsmcity.R;
+import hoek.bubur.gsmcity.WebService.API;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -169,18 +167,9 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
     List<RTH> dataRTH;
     List<Marker> markers;
 
-    public void initData(double lat, double lng) {
-        OkHttpClient ok = new OkHttpClient();
-        ok.newCall(new Request.Builder()
-                .url("")
-                .post(new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("lat", Double.toString(lat))
-                        .addFormDataPart("lng", Double.toString(lng))
-                        .build()
-                )
-                .build()
-        ).enqueue(new Callback() {
+    public void initData(double lat, double lng, double jarak, String alamat, String nama) {
+        API api = new API();
+        api.getRadiusRTHOfficial(lat, lng, alamat, nama, jarak, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();

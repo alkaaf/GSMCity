@@ -7,8 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -38,11 +36,9 @@ import hoek.bubur.gsmcity.BaseApp;
 import hoek.bubur.gsmcity.BaseFragment;
 import hoek.bubur.gsmcity.Model.RTH;
 import hoek.bubur.gsmcity.R;
+import hoek.bubur.gsmcity.WebService.API;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -186,17 +182,8 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
     List<Marker> markers;
 
     public void initData(double lat, double lng) {
-        OkHttpClient ok = new OkHttpClient();
-        ok.newCall(new Request.Builder()
-                .url("http://ww.google.com")
-                .post(new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("lat", Double.toString(lat))
-                        .addFormDataPart("lng", Double.toString(lng))
-                        .build()
-                )
-                .build()
-        ).enqueue(new Callback() {
+        API api = new API();
+        api.getGeoTagList(lat, lng, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -212,9 +199,9 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
                         for (int i = 0; i < dataRTH.size(); i++) {
                             markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng())));
                         }
-                    } catch (JsonSyntaxException e){
+                    } catch (JsonSyntaxException e) {
                         e.printStackTrace();
-                        if(isActive()) {
+                        if (isActive()) {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
