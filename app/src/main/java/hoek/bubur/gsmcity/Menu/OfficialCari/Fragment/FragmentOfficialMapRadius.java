@@ -1,5 +1,6 @@
 package hoek.bubur.gsmcity.Menu.OfficialCari.Fragment;
 
+import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,6 +24,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -112,6 +115,7 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 jarak = i;
                 tvJarak.setText(jarak + " KM");
+                markAndPan(new LatLng(lat,lng));
             }
 
             @Override
@@ -173,12 +177,14 @@ public class FragmentOfficialMapRadius extends BaseFragment implements OnMapRead
     }
 
     Marker marker;
-
+    Circle circle;
     private void markAndPan(LatLng latlng) {
         if (marker != null) {
             marker.remove();
+            circle.remove();
         }
         marker = gmap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        circle = gmap.addCircle(new CircleOptions().center(latlng).fillColor(0x5552e069).radius(jarak*1000).strokeColor(0x5552e069).strokeWidth(2));
         if (useMyLocation) {
             gmap.animateCamera(CameraUpdateFactory.newLatLng(latlng));
         }
