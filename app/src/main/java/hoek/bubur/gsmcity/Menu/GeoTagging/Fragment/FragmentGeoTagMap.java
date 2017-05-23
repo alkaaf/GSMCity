@@ -170,13 +170,6 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
             public void onInfoWindowClick(Marker marker) {
                 DialogGambar dg = new DialogGambar(getContext(), mapMarkerRTH.get(marker));
                 dg.show();
-//                ImageView prevImg = new ImageView(getContext());
-//                prevImg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//                imageDialog = new AlertDialog.Builder(getContext())
-//                        .setView(prevImg)
-//                        .create();
-//                imageDialog.show();
-//                Glide.with(getActivity()).load(wsUrl+mapMarkerRTH.get(marker).getUrlGambar()).into(prevImg);
             }
         });
         initData(0, 0);

@@ -17,6 +17,7 @@ import okhttp3.Request;
 
 public class API {
     public String WSADDR = "http://www.google.com/";
+    public static final String ALL_OFFICIAL_RTH = "/getAllOfficialRTH";
     public static final String GEOTAG_GET_LIST_GEOTAG = "/getGeotagRTH";
     public static final String KATEGORI_LIST_RTH_KATEGORI = "/getOfficialRTHKategori";
     public static final String KATEGORI_LIST_RTH_RADIUS = "/getOfficialRTHRadius";
@@ -31,18 +32,18 @@ public class API {
     }
 
     public void getGeotagList(Callback callback) {
-//    public void getGeoTagList(double lat, double lng, Callback callback) {
         call(new Request.Builder()
                         .url(WSADDR + GEOTAG_GET_LIST_GEOTAG)
                         .get().build()
-//                        .post(new MultipartBody.Builder()
-//                                .setType(MultipartBody.FORM)
-//                                .addFormDataPart("lat", Double.toString(lat))
-//                                .addFormDataPart("lng", Double.toString(lng))
-//                                .build()
-//                        )
-//                        .build()
+
                 , callback);
+    }
+
+    public void getAllOfficialRTH(Callback callback) {
+        call(new Request.Builder()
+
+                .url(WSADDR + ALL_OFFICIAL_RTH)
+                .get().build(), callback);
     }
 
     public void getRTHOfficial(int idKategori, Callback callback) {

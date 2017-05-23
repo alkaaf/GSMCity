@@ -31,6 +31,7 @@ import java.util.List;
 
 import hoek.bubur.gsmcity.Interface.OnLocationLock;
 import hoek.bubur.gsmcity.Menu.GeoTagging.Fragment.FragmentGeoTagMap;
+import hoek.bubur.gsmcity.Menu.HeatMap.Fragment.FragmentHeatMap;
 import hoek.bubur.gsmcity.Menu.Ide.Fragment.FragmentIde;
 import hoek.bubur.gsmcity.Menu.OfficialCari.Fragment.FragmentOfficialMapRadius;
 import hoek.bubur.gsmcity.Menu.OfficialKategori.Fragment.FragmentDaftarKategori;
@@ -160,6 +161,8 @@ public class MainActivity extends AppCompatActivity
             fragment = new FragmentStatistik();
         } else if (id == R.id.nav_changews) {
             changeWs();
+        } else if(id == R.id.nav_heatmap){
+            fragment = new FragmentHeatMap();
         }
 
         if (fragment != null) {
