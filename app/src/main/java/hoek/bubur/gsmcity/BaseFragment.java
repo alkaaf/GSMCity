@@ -1,6 +1,5 @@
 package hoek.bubur.gsmcity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,7 +14,7 @@ import android.view.ViewGroup;
  * Created by dalbo on 5/19/2017.
  */
 
-public class BaseFragment extends Fragment{
+public class BaseFragment extends Fragment {
     boolean active = false;
     ProgressDialog pd;
     ActionBar actionBar;
@@ -23,16 +22,18 @@ public class BaseFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        pd = new ProgressDialog(getContext());
-        pd.setMessage(getString(R.string.pd_memuat));
+
+
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    public void showLoad(){
+    public void showLoad() {
+        pd = new ProgressDialog(getContext());
+        pd.setMessage(getString(R.string.pd_memuat));
         pd.show();
     }
 
-    public void hideLoad(){
+    public void hideLoad() {
         pd.dismiss();
     }
 
@@ -58,7 +59,7 @@ public class BaseFragment extends Fragment{
         setHasOptionsMenu(true);
     }
 
-    public AppCompatActivity getAppCompatActivity(){
+    public AppCompatActivity getAppCompatActivity() {
         return ((AppCompatActivity) getActivity());
     }
 //    public void setBarTitle(String title){

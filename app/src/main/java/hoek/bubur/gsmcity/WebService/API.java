@@ -2,8 +2,11 @@ package hoek.bubur.gsmcity.WebService;
 
 import android.content.Context;
 
+import java.io.File;
+
 import hoek.bubur.gsmcity.Conf;
 import okhttp3.Callback;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -14,28 +17,31 @@ import okhttp3.Request;
 
 public class API {
     public String WSADDR = "http://www.google.com/";
-    public static final String GEOTAG_GET_LIST_GEOTAG = "";
+    public static final String GEOTAG_GET_LIST_GEOTAG = "/getGeotagRTH";
     public static final String KATEGORI_LIST_RTH_KATEGORI = "/getOfficialRTHKategori";
     public static final String KATEGORI_LIST_RTH_RADIUS = "/getOfficialRTHRadius";
-
+    public static final String SET_IDE = "/upload";
     Context context;
     Conf conf;
+
     public API(Context context) {
         this.context = context;
         conf = new Conf(context);
         WSADDR = conf.getConf(Conf.CONF_WSADDR);
     }
 
-    public void getGeoTagList(double lat, double lng, Callback callback) {
+    public void getGeotagList(Callback callback) {
+//    public void getGeoTagList(double lat, double lng, Callback callback) {
         call(new Request.Builder()
                         .url(WSADDR + GEOTAG_GET_LIST_GEOTAG)
-                        .post(new MultipartBody.Builder()
-                                .setType(MultipartBody.FORM)
-                                .addFormDataPart("lat", Double.toString(lat))
-                                .addFormDataPart("lng", Double.toString(lng))
-                                .build()
-                        )
-                        .build()
+                        .get().build()
+//                        .post(new MultipartBody.Builder()
+//                                .setType(MultipartBody.FORM)
+//                                .addFormDataPart("lat", Double.toString(lat))
+//                                .addFormDataPart("lng", Double.toString(lng))
+//                                .build()
+//                        )
+//                        .build()
                 , callback);
     }
 
@@ -65,6 +71,32 @@ public class API {
                         )
                         .build()
                 , callback);
+    }
+
+    public void putIde(String nama, String alamat, String fasilitas, double lat, double lng, double luas, String imgUrl, Callback callback) {
+        File image = new File(imgUrl);
+        String extension = "";
+
+        int i = imgUrl.lastIndexOf('.');
+        if (i > 0) {
+            extension = imgUrl.substring(i + 1);
+        }
+        call(new Request.Builder()
+                        .url(WSADDR + SET_IDE)
+                        .post(new MultipartBody.Builder()
+                                .setType(MultipartBody.FORM)
+                                .addFormDataPart("nama", nama)
+                                .addFormDataPart("alamat", alamat)
+                                .addFormDataPart("fasilitas", fasilitas)
+                                .addFormDataPart("lat", Double.toString(lat))
+                                .addFormDataPart("lng", Double.toString(lng))
+                                .addFormDataPart("luas", Double.toString(luas))
+                                .addFormDataPart("foto", "image." + extension, MultipartBody.create(MediaType.parse("image/*"), image))
+                                .build()
+                        )
+                        .build()
+                , callback
+        );
     }
 
     private void call(Request request, Callback callback) {

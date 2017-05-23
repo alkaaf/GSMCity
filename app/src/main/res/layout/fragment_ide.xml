@@ -106,7 +106,12 @@
                         android:background="@color/white"
                         android:layout_toEndOf="@+id/textView4" />
                 </RelativeLayout>
-
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="@dimen/big_size"
+                    android:layout_marginRight="@dimen/big_size"
+                    android:background="@color/grey_200" />
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -121,6 +126,8 @@
                         android:textStyle="bold" />
 
                     <EditText
+                        android:inputType="numberDecimal"
+                        android:digits="1234567890."
                         android:textAlignment="textEnd"
                         android:id="@+id/iLuas"
                         android:layout_width="wrap_content"

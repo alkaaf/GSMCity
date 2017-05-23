@@ -1,9 +1,13 @@
 package hoek.bubur.gsmcity.Menu.GeoTagging.Fragment;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,8 +17,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -29,12 +35,15 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hoek.bubur.gsmcity.BaseApp;
 import hoek.bubur.gsmcity.BaseFragment;
+import hoek.bubur.gsmcity.Conf;
+import hoek.bubur.gsmcity.Menu.GeoTagging.DialogGambar;
 import hoek.bubur.gsmcity.Model.RTH;
 import hoek.bubur.gsmcity.R;
 import hoek.bubur.gsmcity.WebService.API;
@@ -51,9 +60,6 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
 
     SupportMapFragment mapFragment;
     GoogleMap gmap;
-    SearchView searchView;
-    Location myLocation;
-
 
     boolean useMyLocation;
 
@@ -68,15 +74,17 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
 
     double lat;
     double lng;
+    String wsUrl;
+    AlertDialog imageDialog;
 
     LocationManager lm;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View v = inflater.inflate(R.layout.fragment_map_geotag, container, false);
         ButterKnife.bind(this, v);
+        wsUrl = new Conf(getContext()).getConf(Conf.CONF_WSADDR);
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         refreshLoc.setOnClickListener(new View.OnClickListener() {
@@ -115,7 +123,7 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
             lng = BaseApp.getLng();
             initData(lat, lng);
             if (gmap != null) {
-                markAndPan(BaseApp.getLatLng(), "Lokasi Saya");
+//                markAndPan(BaseApp.getLatLng(), "Lokasi Saya");
             }
         } else {
             Toast.makeText(getContext(), "Lokasi anda belum ditemukan", Toast.LENGTH_SHORT).show();
@@ -132,6 +140,17 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
             }
         });
         fetchLocation();
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        gmap.setMyLocationEnabled(true);
         gmap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -146,6 +165,21 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
                 }
             }
         });
+        gmap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                DialogGambar dg = new DialogGambar(getContext(), mapMarkerRTH.get(marker));
+                dg.show();
+//                ImageView prevImg = new ImageView(getContext());
+//                prevImg.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//                imageDialog = new AlertDialog.Builder(getContext())
+//                        .setView(prevImg)
+//                        .create();
+//                imageDialog.show();
+//                Glide.with(getActivity()).load(wsUrl+mapMarkerRTH.get(marker).getUrlGambar()).into(prevImg);
+            }
+        });
+        initData(0, 0);
     }
 
     Marker marker;
@@ -154,19 +188,20 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
         if (marker != null) {
             marker.remove();
         }
-        marker = gmap.addMarker(new MarkerOptions().position(latlng).title(title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//        marker = gmap.addMarker(new MarkerOptions().position(latlng).title(title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         if (useMyLocation) {
-            gmap.animateCamera(CameraUpdateFactory.newLatLng(latlng));
+            gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng,MAP_ZOOM));
         }
     }
 
 
     List<RTH> dataRTH;
     List<Marker> markers;
+    HashMap<Marker, RTH> mapMarkerRTH = new HashMap<>();
 
     public void initData(double lat, double lng) {
         API api = new API(getContext());
-        api.getGeoTagList(lat, lng, new Callback() {
+        api.getGeotagList(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -185,7 +220,10 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
                                     gmap.clear();
                                     markers = new ArrayList<Marker>();
                                     for (int i = 0; i < dataRTH.size(); i++) {
-                                        markers.add(gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(dataRTH.get(i).getNamaLokasi())));
+                                        String snippet = dataRTH.get(i).getNamaLokasi()+"\n"+dataRTH.get(i).getFasilitas()+"\n("+dataRTH.get(i).getLuas()+")";
+                                        Marker temp = gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(snippet));
+                                        mapMarkerRTH.put(temp, dataRTH.get(i));
+                                        markers.add(temp);
                                     }
                                     markAndPan(new LatLng(FragmentGeoTagMap.this.lat, FragmentGeoTagMap.this.lng), "Lokasi saya");
                                 } catch (JsonSyntaxException e) {

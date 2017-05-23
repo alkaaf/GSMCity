@@ -34,6 +34,7 @@ import hoek.bubur.gsmcity.Menu.GeoTagging.Fragment.FragmentGeoTagMap;
 import hoek.bubur.gsmcity.Menu.Ide.Fragment.FragmentIde;
 import hoek.bubur.gsmcity.Menu.OfficialCari.Fragment.FragmentOfficialMapRadius;
 import hoek.bubur.gsmcity.Menu.OfficialKategori.Fragment.FragmentDaftarKategori;
+import hoek.bubur.gsmcity.Menu.Statistik.Fragment.FragmentStatistik;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -156,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_ide) {
             fragment = new FragmentIde();
         } else if (id == R.id.nav_statistik) {
-
+            fragment = new FragmentStatistik();
         } else if (id == R.id.nav_changews) {
             changeWs();
         }
