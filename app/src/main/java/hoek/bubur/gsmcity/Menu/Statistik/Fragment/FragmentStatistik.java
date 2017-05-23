@@ -33,20 +33,7 @@ public class FragmentStatistik extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_statistik, container, false);
         ButterKnife.bind(this, v);
-        Glide.with(getContext()).load("http://192.168.137.1/gsmcity/foto/159239584e0aa8.jpg").listener(new RequestListener<Drawable>() {
-            @Override
-            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                Log.i("GLIDER", "Fail");
-                return false;
-            }
-
-            @Override
-            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                Log.i("GLIDER", "SUCCE");
-                return false;
-            }
-        }).into(cobaa);
+        Glide.with(getContext()).load("http://192.168.137.1/gsmcity/foto/159239584e0aa8.jpg").into(cobaa);
         return v;
-
     }
 }

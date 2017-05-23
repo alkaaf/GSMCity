@@ -6,6 +6,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
@@ -44,6 +45,7 @@ import hoek.bubur.gsmcity.BaseApp;
 import hoek.bubur.gsmcity.BaseFragment;
 import hoek.bubur.gsmcity.Conf;
 import hoek.bubur.gsmcity.Menu.GeoTagging.DialogGambar;
+import hoek.bubur.gsmcity.Menu.Ide.Fragment.FragmentIde;
 import hoek.bubur.gsmcity.Model.RTH;
 import hoek.bubur.gsmcity.R;
 import hoek.bubur.gsmcity.WebService.API;
@@ -71,6 +73,8 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
     ImageView refreshLoc;
     @BindView(R.id.bSegar)
     Button bSegar;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
 
     double lat;
     double lng;
@@ -106,6 +110,13 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
                 }
             }
         });
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getChildFragmentManager().beginTransaction().replace(R.id.fContainer, new FragmentIde()).commit();
+            }
+        });
+
         return v;
     }
 
@@ -201,30 +212,35 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
             }
 
             @Override
-            public void onResponse(Call call, final Response response) {
+            public void onResponse(Call call, final Response response) throws IOException {
                 if (isActive()) {
+                    try{
+
+                        dataRTH = new Gson().fromJson(response.body().string(), new TypeToken<List<RTH>>() {
+                        }.getType());
+                    } catch (JsonSyntaxException e){
+                        e.printStackTrace();
+                    }
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (response.isSuccessful()) {
                                 try {
-                                    dataRTH = new Gson().fromJson(response.body().string(), new TypeToken<List<RTH>>() {
-                                    }.getType());
+
                                     gmap.clear();
                                     markers = new ArrayList<Marker>();
-                                    for (int i = 0; i < dataRTH.size(); i++) {
-                                        String snippet = dataRTH.get(i).getNamaLokasi()+"\n"+dataRTH.get(i).getFasilitas()+"\n("+dataRTH.get(i).getLuas()+")";
-                                        Marker temp = gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(snippet));
-                                        mapMarkerRTH.put(temp, dataRTH.get(i));
-                                        markers.add(temp);
+                                    if(dataRTH != null) {
+                                        for (int i = 0; i < dataRTH.size(); i++) {
+                                            String snippet = dataRTH.get(i).getNamaLokasi() + "\n" + dataRTH.get(i).getFasilitas() + "\n(" + dataRTH.get(i).getLuas() + ")";
+                                            Marker temp = gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(snippet));
+                                            mapMarkerRTH.put(temp, dataRTH.get(i));
+                                            markers.add(temp);
+                                        }
+                                        markAndPan(new LatLng(FragmentGeoTagMap.this.lat, FragmentGeoTagMap.this.lng), "Lokasi saya");
                                     }
-                                    markAndPan(new LatLng(FragmentGeoTagMap.this.lat, FragmentGeoTagMap.this.lng), "Lokasi saya");
                                 } catch (JsonSyntaxException e) {
                                     e.printStackTrace();
                                     Toast.makeText(getContext(), "Gagal parsing data", Toast.LENGTH_SHORT).show();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(getContext(), "Gagal menghubungi server", Toast.LENGTH_SHORT).show();
                                 }
 
                             }

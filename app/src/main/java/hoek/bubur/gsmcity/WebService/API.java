@@ -31,12 +31,22 @@ public class API {
         WSADDR = conf.getConf(Conf.CONF_WSADDR);
     }
 
-    public void getGeotagList(Callback callback) {
-        call(new Request.Builder()
-                        .url(WSADDR + GEOTAG_GET_LIST_GEOTAG)
-                        .get().build()
+    public void getHeatMap(Callback callback, boolean official) {
+        if(official){
+            call(new Request.Builder()
+                            .url(WSADDR + ALL_OFFICIAL_RTH)
+                            .get().build()
 
-                , callback);
+                    , callback);
+        }
+        else {
+            call(new Request.Builder()
+                            .url(WSADDR + GEOTAG_GET_LIST_GEOTAG)
+                            .get().build()
+
+                    , callback);
+        }
+
     }
 
     public void getAllOfficialRTH(Callback callback) {
@@ -102,5 +112,13 @@ public class API {
 
     private void call(Request request, Callback callback) {
         new OkHttpClient().newCall(request).enqueue(callback);
+    }
+
+    public void getGeotagList(Callback callback) {
+        call(new Request.Builder()
+                        .url(WSADDR + GEOTAG_GET_LIST_GEOTAG)
+                        .get().build()
+
+                , callback);
     }
 }

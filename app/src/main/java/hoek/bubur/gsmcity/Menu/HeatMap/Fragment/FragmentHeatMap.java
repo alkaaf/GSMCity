@@ -9,6 +9,9 @@ import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import hoek.bubur.gsmcity.BaseFragment;
 import hoek.bubur.gsmcity.Model.RTH;
 import hoek.bubur.gsmcity.R;
@@ -40,15 +45,22 @@ import okhttp3.Response;
  */
 
 public class FragmentHeatMap extends BaseFragment implements OnMapReadyCallback {
+    public static final int RADIUS_BLUR = 35;
+
     SupportMapFragment mapFragment;
     GoogleMap gMap;
     List<RTH> dataRTH;
     List<LatLng> dataLatLng;
 
+    @BindView(R.id.checkOfficial)
+    CheckBox checkOfficial;
+    @BindView(R.id.pb)
+    ProgressBar pb;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_heatmap, container, false);
+        ButterKnife.bind(this, v);
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         return v;
@@ -75,14 +87,21 @@ public class FragmentHeatMap extends BaseFragment implements OnMapReadyCallback 
             }
         });
         gMap.setMyLocationEnabled(true);
+        checkOfficial.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                initData();
+            }
+        });
         initData();
     }
 
     public void initData() {
         gMap.clear();
+        pb.setVisibility(View.VISIBLE);
         dataLatLng = new ArrayList<>();
         API api = new API(getContext());
-        api.getAllOfficialRTH(new Callback() {
+        api.getHeatMap(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -91,6 +110,7 @@ public class FragmentHeatMap extends BaseFragment implements OnMapReadyCallback 
                         @Override
                         public void run() {
                             Toast.makeText(getContext(), "Gagal koneksi", Toast.LENGTH_SHORT).show();
+                            pb.setVisibility(View.GONE);
                         }
                     });
                 }
@@ -119,8 +139,14 @@ public class FragmentHeatMap extends BaseFragment implements OnMapReadyCallback 
                         e.printStackTrace();
                     }
                 }
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pb.setVisibility(View.GONE);
+                    }
+                });
             }
-        });
+        },checkOfficial.isChecked());
     }
     TileOverlay tileOverlay;
     private void initHeatMap(){
@@ -137,6 +163,7 @@ public class FragmentHeatMap extends BaseFragment implements OnMapReadyCallback 
         HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
                 .data(dataLatLng)
                 .gradient(gradient)
+                .radius(RADIUS_BLUR)
                 .build();
         tileOverlay = gMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
     }

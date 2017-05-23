@@ -2,6 +2,7 @@ package hoek.bubur.gsmcity;
 
 import android.Manifest;
 import android.app.Application;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -47,6 +48,8 @@ public class BaseApp extends Application implements LocationListener {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
+
         lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000*5, 0, this);
         Log.i("LOC_MY","Initializing");
     }

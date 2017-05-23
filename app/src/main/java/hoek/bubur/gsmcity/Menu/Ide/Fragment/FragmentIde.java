@@ -86,8 +86,14 @@ public class FragmentIde extends BaseFragment {
                                 public void onFailure(Call call, IOException e) {
                                     e.printStackTrace();
                                     if (isActive()) {
-                                        Toast.makeText(getContext(), "Gagal menghubungi server", Toast.LENGTH_SHORT).show();
-                                        hideLoad();
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+
+                                                Toast.makeText(getContext(), "Gagal menghubungi server", Toast.LENGTH_SHORT).show();
+                                                hideLoad();
+                                            }
+                                        });
                                     }
                                 }
 
@@ -110,7 +116,7 @@ public class FragmentIde extends BaseFragment {
                                             }
                                         } catch (JsonSyntaxException e) {
                                             e.printStackTrace();
-                                            if(isActive()){
+                                            if (isActive()) {
                                                 getActivity().runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
