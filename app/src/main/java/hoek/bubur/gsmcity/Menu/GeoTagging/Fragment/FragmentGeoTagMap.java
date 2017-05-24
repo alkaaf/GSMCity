@@ -152,28 +152,22 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
         });
         fetchLocation();
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
         gmap.setMyLocationEnabled(true);
         gmap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (!useMyLocation) {
-                    Log.i("LOC_SELECTED", latLng.latitude + " " + latLng.longitude);
-                    markAndPan(new LatLng(latLng.latitude, latLng.longitude), "Lokasi Saya");
-                    lat = latLng.latitude;
-                    lng = latLng.longitude;
-                    initData(lat, lng);
-                } else {
-                    Toast.makeText(getContext(), "Hilangi centang \"Gunakan lokasi saya\"", Toast.LENGTH_SHORT).show();
-                }
+//                if (!useMyLocation) {
+//                    Log.i("LOC_SELECTED", latLng.latitude + " " + latLng.longitude);
+//                    markAndPan(new LatLng(latLng.latitude, latLng.longitude), "Lokasi Saya");
+//                    lat = latLng.latitude;
+//                    lng = latLng.longitude;
+//                    initData(lat, lng);
+//                } else {
+//                    Toast.makeText(getContext(), "Hilangi centang \"Gunakan lokasi saya\"", Toast.LENGTH_SHORT).show();
+//                }
             }
         });
         gmap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -231,12 +225,12 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
                                     markers = new ArrayList<Marker>();
                                     if(dataRTH != null) {
                                         for (int i = 0; i < dataRTH.size(); i++) {
-                                            String snippet = dataRTH.get(i).getNamaLokasi() + "\n" + dataRTH.get(i).getFasilitas() + "\n(" + dataRTH.get(i).getLuas() + ")";
-                                            Marker temp = gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getAlamat()).snippet(snippet));
+                                            String snippet = dataRTH.get(i).getFasilitas() + "\n(" + dataRTH.get(i).getLuas() + ")";
+                                            Marker temp = gmap.addMarker(new MarkerOptions().position(dataRTH.get(i).getLatLng()).title(dataRTH.get(i).getNamaLokasi()).snippet(snippet));
                                             mapMarkerRTH.put(temp, dataRTH.get(i));
                                             markers.add(temp);
                                         }
-                                        markAndPan(new LatLng(FragmentGeoTagMap.this.lat, FragmentGeoTagMap.this.lng), "Lokasi saya");
+//                                        markAndPan(new LatLng(FragmentGeoTagMap.this.lat, FragmentGeoTagMap.this.lng), "Lokasi saya");
                                     }
                                 } catch (JsonSyntaxException e) {
                                     e.printStackTrace();

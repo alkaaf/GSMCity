@@ -75,7 +75,7 @@ public class FragmentIde extends BaseFragment {
                     showLoad();
                     api.putIde(
                             getStringViewValue(iNama),
-                            getStringViewValue(iAlamat),
+                            "",
                             getStringViewValue(iFasilitas),
                             BaseApp.getLat(),
                             BaseApp.getLng(),
@@ -210,11 +210,11 @@ public class FragmentIde extends BaseFragment {
     }
 
     public boolean checkData() {
-
-        if (getStringViewValue(iAlamat).equals("")) {
-            Toast.makeText(getContext(), "Harap masukkan alamat RTH", Toast.LENGTH_SHORT).show();
-            return false;
-        }
+//
+//        if (getStringViewValue(iAlamat).equals("")) {
+//            Toast.makeText(getContext(), "Harap masukkan alamat RTH", Toast.LENGTH_SHORT).show();
+//            return false;
+//        }
         if (getStringViewValue(iNama).equals("")) {
             Toast.makeText(getContext(), "Harap masukkan Nama RTH", Toast.LENGTH_SHORT).show();
             return false;

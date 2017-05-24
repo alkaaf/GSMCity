@@ -4,28 +4,32 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_geotag"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Geotag" />
+            android:icon="@drawable/ic_marker"
+            android:title="Kontribusi RTH" />
         <item
             android:id="@+id/nav_official_kategori"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_smile"
             android:title="Kategori" />
         <item
             android:id="@+id/nav_official_pencarian"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/ic_map"
             android:title="Pencarian" />
-        <item
-            android:id="@+id/nav_ide"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Ide" />
+        <!--<item-->
+            <!--android:id="@+id/nav_ide"-->
+            <!--android:icon="@drawable/ic_ide_black"-->
+            <!--android:title="Ide" />-->
         <item
             android:id="@+id/nav_heatmap"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_heat"
             android:title="HeatMap" />
         <item
-            android:id="@+id/nav_statistik"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Statistik" />
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_about"
+            android:title="Tentang" />
+        <!--<item-->
+            <!--android:id="@+id/nav_statistik"-->
+            <!--android:icon="@drawable/ic_menu_manage"-->
+            <!--android:title="Statistik" />-->
         <item android:id="@+id/nav_changews"
             android:icon="@drawable/ic_menu_manage"
             android:title="Ubah WS"

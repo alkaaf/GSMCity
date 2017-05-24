@@ -36,10 +36,9 @@ import java.util.List;
 import hoek.bubur.gsmcity.Interface.OnLocationLock;
 import hoek.bubur.gsmcity.Menu.GeoTagging.Fragment.FragmentGeoTagMap;
 import hoek.bubur.gsmcity.Menu.HeatMap.Fragment.FragmentHeatMap;
-import hoek.bubur.gsmcity.Menu.Ide.Fragment.FragmentIde;
 import hoek.bubur.gsmcity.Menu.OfficialCari.Fragment.FragmentOfficialMapRadius;
 import hoek.bubur.gsmcity.Menu.OfficialKategori.Fragment.FragmentDaftarKategori;
-import hoek.bubur.gsmcity.Menu.Statistik.Fragment.FragmentStatistik;
+import hoek.bubur.gsmcity.Menu.Tentang.Fragment.FragmentTentang;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if(lm.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
 
@@ -126,6 +125,7 @@ public class MainActivity extends AppCompatActivity
         fm.beginTransaction().replace(R.id.fContainer, new FragmentGeoTagMap()).commit();
 
         checkPermission();
+
     }
 
     private void checkPermission() {
@@ -188,37 +188,25 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    long mBackPressed;
+    public static final int TIME_INTERVAL = 2000;
+
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
             super.onBackPressed();
+            return;
+        } else {
+            Toast.makeText(getBaseContext(), "Tap back button in order to exit", Toast.LENGTH_SHORT).show();
         }
+
+        mBackPressed = System.currentTimeMillis();
+
     }
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -235,14 +223,19 @@ public class MainActivity extends AppCompatActivity
             fragment = new FragmentDaftarKategori();
         } else if (id == R.id.nav_official_pencarian) {
             fragment = new FragmentOfficialMapRadius();
-        } else if (id == R.id.nav_ide) {
-            fragment = new FragmentIde();
-        } else if (id == R.id.nav_statistik) {
-            fragment = new FragmentStatistik();
-        } else if (id == R.id.nav_changews) {
+        }
+//        } else if (id == R.id.nav_ide) {
+//            fragment = new FragmentIde();
+//        }
+//        else if (id == R.id.nav_statistik) {
+//            fragment = new FragmentStatistik();
+//        }
+        else if (id == R.id.nav_changews) {
             changeWs();
         } else if (id == R.id.nav_heatmap) {
             fragment = new FragmentHeatMap();
+        } else if (id == R.id.nav_about) {
+            fragment = new FragmentTentang();
         }
 
         if (fragment != null) {
