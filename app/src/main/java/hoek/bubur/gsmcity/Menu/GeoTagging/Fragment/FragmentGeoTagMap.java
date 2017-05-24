@@ -113,7 +113,7 @@ public class FragmentGeoTagMap extends BaseFragment implements OnMapReadyCallbac
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getChildFragmentManager().beginTransaction().replace(R.id.fContainer, new FragmentIde()).commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fContainer, new FragmentIde()).commit();
             }
         });
 
